@@ -1,0 +1,5 @@
+comment = 'Extension to add Oracle DBMS_LOCK full compatibility to PostgreSQL'
+default_version = '1.0.0'
+module_pathname = '$libdir/pg_dbms_lock'
+schema = 'dbms_lock'
+relocatable = false

@@ -1,0 +1,46 @@
+DO
+ objid |     mode      
+-------+---------------
+   123 | ExclusiveLock
+(1 row)
+
+DO
+ objid | mode 
+-------+------
+(0 rows)
+
+DO
+ objid |   mode    
+-------+-----------
+   321 | ShareLock
+(1 row)
+
+DO
+ objid | mode 
+-------+------
+(0 rows)
+
+BEGIN
+DO
+ objid |     mode      
+-------+---------------
+   321 | ExclusiveLock
+(1 row)
+
+COMMIT
+ objid | mode 
+-------+------
+(0 rows)
+
+BEGIN
+DO
+ objid |   mode    
+-------+-----------
+   321 | ShareLock
+(1 row)
+
+COMMIT
+ objid | mode 
+-------+------
+(0 rows)
+
