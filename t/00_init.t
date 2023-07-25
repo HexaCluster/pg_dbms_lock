@@ -1,4 +1,4 @@
-use Test::Simple tests => 3;
+use Test::Simple tests => 4;
 
 $ENV{LANG}='C';
 
@@ -21,4 +21,8 @@ ok( $? == 0, "Create extension pg_background");
 
 $ret = `psql -d regress_dbms_lock -c "CREATE EXTENSION pg_dbms_lock" > /dev/null 2>&1`;
 ok( $? == 0, "Create extension pg_dbms_lock");
+
+$ret = `psql -d regress_dbms_lock -c "CREATE TABLE lock_test (action varchar(10), session int, executed timestamp);" > /dev/null 2>&1`;
+ok( $? == 0, "Create test table");
+
 

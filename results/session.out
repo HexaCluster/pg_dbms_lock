@@ -1,0 +1,14 @@
+ action  | session | ?column? 
+---------+---------+----------
+ started |       1 | 
+ ended   |       1 | 00:00:02
+ started |       2 | 00:00:00
+ ended   |       2 | 00:00:03
+ started |       3 | 00:00:00
+ ended   |       3 | 00:00:03
+(6 rows)
+
+ objid | mode 
+-------+------
+(0 rows)
+

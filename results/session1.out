@@ -1,0 +1,16 @@
+DO
+   objid    |     mode      
+------------+---------------
+ 1073741824 | ExclusiveLock
+(1 row)
+
+ pg_sleep 
+----------
+ 
+(1 row)
+
+DO
+ objid | mode 
+-------+------
+(0 rows)
+
