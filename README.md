@@ -1,10 +1,10 @@
 # pg_dbms_lock
 
-PostgreSQL extension to manages advisory locks in a way similar to Oracle DBMS_LOCK package.
+PostgreSQL extension to manages advisory locks in a way compatible to Oracle DBMS_LOCK package.
+
+This extension uses PostgreSQL advisory locks to emulate the same behavior following the lock mode (exclusive or shared), the timeout and the on commit release settings.
 
 More information about the Oracle DBMS_LOCK package can be found [here](https://docs.oracle.com/cd/F49540_01/DOC/server.815/a68001/dbms_loc.htm)
-
-This extension uses advisory lock to emulate the same behavior through the call to pg_try_advisory_lock(), pg_try_advisory_lock_shared(), pg_try_advisory_xact_lock() or pg_try_advisory_xact_lock_shared() following the lock mode (exclusive or shared) and the on commit release settings.
 
 * [Description](#description)
 * [Installation](#installation)
@@ -20,7 +20,7 @@ This extension uses advisory lock to emulate the same behavior through the call 
 
 ## [Description](#description)
 
-This PostgreSQL extension provided full compatibility with the DBMS_LOCK Oracle package except the `DBMS_LOCK.CONVERT()` function. The following stored procedures are implemented:
+This PostgreSQL extension provided compatibility with the DBMS_LOCK Oracle package except the `DBMS_LOCK.CONVERT()` function and some unsupported lock modes. The following stored procedures are implemented:
 
 * `ALLOCATE_UNIQUE()` Allocates a unique lock ID to a named lock.  
 * `REQUEST()` Requests a lock of a specific mode.  
@@ -36,7 +36,7 @@ For instance, user locks can be used to do the following:
 
 ## [Installation](#installation)
 
-There is no special requirement to run this extension but your PostgreSQL version must support extensions (>= 9.1) and the [pg_background](https://github.com/vibhorkum/pg_background) extension must be created in each database where you planned to use `pg_dbms_lock`.
+To be able to run this extension, your PostgreSQL version must support extensions (>= 9.1) and the [pg_background](https://github.com/vibhorkum/pg_background) extension must be created in each database where you planned to use `pg_dbms_lock`.
 
 To install the extension execute
 ```
@@ -47,6 +47,11 @@ Test of the extension can be done using:
 ```
     make installcheck
 ```
+
+Advisory locks are stored in a shared memory pool whose size is defined by the configuration variables
+`max_locks_per_transaction` and `max_connections`. Care must be taken to adjust this memory or the server
+will be unable to grant any locks at all. The value of `max_locks_per_transaction` should be increase in
+consequence.
 
 ## [Manage the extension](#manage-the-extension)
 
@@ -60,36 +65,48 @@ To upgrade to a new version execute:
     psql -d mydb -c 'ALTER EXTENSION pg_dbms_lock UPDATE TO "1.1.0"'
 ```
 
-If you doesn't have the privileges to create an extension and that pg_background is available, you can just import the extension file into the database, for example:
+If you doesn't have the privileges to create an extension and that the
+`pg_background` extension is available, you can just import the extension
+file into the database, for example:
 
     psql -d mydb -f sql/pg_dbms_lock--1.0.0.sql
 
-This is especially useful for database in DBaas cloud services. To upgrade just import the extension upgrade files using psql.
+This is especially useful for database in DBaas cloud services, supposing that
+`pg_background` is supported. To upgrade just import the extension upgrade files using psql.
 
 
 ## [Procedures](#procedures)
 
 ### [ALLOCATE_UNIQUE](#allocate_unique)
 
-Allocates a unique lock identifier (in the range of 1073741824 to 1999999999) given a lock name. Lock identifiers are used to enable applications to coordinate their use of locks. This is provided because it may be easier for applications to coordinate their use of locks based on lock names rather than lock numbers.
+Allocates a unique lock identifier (in the range of 1073741824 to 1999999999) given a lock name.
+Lock identifiers are used to enable applications to coordinate their use of locks. This is provided
+because it may be easier for applications to coordinate their use of locks based on lock names
+rather than lock numbers.
 
-If you choose to identify locks by name, you can use `ALLOCATE_UNIQUE()` to generate a unique lock identification number for these named locks.
+If you choose to identify locks by name, you can use `ALLOCATE_UNIQUE()` to generate a unique
+lock identification number for these named locks.
 
-The first session to call `ALLOCATE_UNIQUE()` with a new lock name causes a unique lock ID to be generated and stored in the `dbms_lock.dbms_lock_allocated` table. Subsequent calls (usually by other sessions) return the lock ID previously generated.
+The first session to call `ALLOCATE_UNIQUE()` with a new lock name causes a unique lock ID to
+be generated and stored in the `dbms_lock.dbms_lock_allocated` table. Subsequent calls (usuallyu
+by other sessions) return the lock ID previously generated.
 
-A lock name is associated with the returned lock ID for at least expiration_secs (defaults to 10 days) past the last call to `ALLOCATE_UNIQUE()` with the given lock name. After this time, the row in the `dbms_lock.dbms_lock_allocated` table for this lock name may be deleted in order to recover space. `ALLOCATE_UNIQUE()` performs a commit. 
+A lock name is associated with the returned lock ID for at least `expiration_secs` (defaults to 10 days)
+past the last call to `ALLOCATE_UNIQUE()` with the given lock name. After this time, the row in the
+`dbms_lock.dbms_lock_allocated` table for this lock name may be deleted in order to recover space.
+`ALLOCATE_UNIQUE()` performs a commit. 
 
 Syntax:
 ```
 dbms_lock.allocate_unique (
    lockname         IN  varchar,
    lockhandle       OUT varchar,
-   expiration_secs  IN  integer   DEFAULT 864000);
+   expiration_secs  IN  integer DEFAULT 864000);
 ```
 Parameters:
 
 - lockname: Name of the lock for which you want to generate a unique ID.
-- lockhandle: Returns the handle to the lock ID generated by `ALLOCATE_UNIQUE()`. You can use this handle in subsequent calls to `REQUEST()` and `RELEASE()`. A handle is returned instead of the actual lock ID to reduce the chance that a programming error accidentally creates an incorrect, but valid, lock ID. This provides better isolation between different applications that are using this package. All sessions using a lock handle returned by `ALLOCATE_UNIQUE()` with the same lock name are referring to the same lock. Therefore, do not pass lock handles from one session to another.  
+- lockhandle: Returns the handle to the lock ID generated by `ALLOCATE_UNIQUE()`. You can use this handle in subsequent calls to `REQUEST()` and `RELEASE()`. All sessions using a lock handle returned by `ALLOCATE_UNIQUE()` with the same lock name are referring to the same lock. Therefore, do not pass lock handles from one session to another, only use the locak name to get the lock handle.  
 - expiration_specs: Number of seconds to wait after the last `ALLOCATE_UNIQUE()` has been performed on a given lock, before permitting that lock to be deleted from the `DBMS_LOCK_ALLOCATED` table. The default waiting period is 10 days. You should not delete locks from this table. Subsequent calls to `ALLOCATE_UNIQUE()` may delete expired locks to recover space.  
 
 Example:
@@ -144,23 +161,33 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
 
 SELECT name, lockid, expiration FROM dbms_lock.dbms_lock_allocated;
 ```
 
 ### [REQUEST](#request)
 
-This function requests a lock with a given mode. `REQUEST()` is an overloaded function that accepts either a user-defined lock identifier, or the lock handle returned by the `ALLOCATE_UNIQUE()` procedure. 
+This function requests a lock with a given mode. `REQUEST()` is an overloaded function that accepts
+either a user-defined lock identifier, or the lock handle returned by the `ALLOCATE_UNIQUE()` procedure. 
 
 Syntax:
 ```
-DBMS_LOCK.REQUEST(
-   id                 IN  integer ||
+dbms_lock.request(
+   id                 IN  integer
+   lockmode           IN  integer DEFAULT 6,
+   timeout            IN  integer DEFAULT 32767,
+   release_on_commit  IN  boolean DEFAULT false
+)
+  RETURN integer;
+```
+```
+dbms_lock.request(
    lockhandle         IN  varchar,
    lockmode           IN  integer DEFAULT 6,
    timeout            IN  integer DEFAULT 32767,
-   release_on_commit  IN  boolean DEFAULT false,
+   release_on_commit  IN  boolean DEFAULT false
+)
   RETURN integer;
 ```
 
@@ -196,15 +223,19 @@ $$;
 
 ### [RELEASE](#release)
 
-This function explicitly releases a lock previously acquired using the `REQUEST()` function. Locks are automatically released at the end of a session. `RELEASE()` is an overloaded function that accepts either a user-defined lock identifier, or the lock handle returned by the `ALLOCATE_UNIQUE()` procedure. 
+This function explicitly releases a lock previously acquired using the `REQUEST()` function.
+Locks are automatically released at the end of a session. `RELEASE()` is an overloaded function
+that accepts either a user-defined lock identifier, or the lock handle returned by the
+`ALLOCATE_UNIQUE()` procedure. 
 
 Syntax:
 ```
-DBMS_LOCK.RELEASE (
+dbms_lock.release (
    id         IN integer)
   RETURN integer;
-
-DBMS_LOCK.RELEASE (
+```
+```
+dbms_lock.release (
    lockhandle IN varchar)
   RETURN integer;
 
