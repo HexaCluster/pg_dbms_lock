@@ -24,7 +24,7 @@ BEGIN
 
     INSERT INTO lock_test VALUES ('started', 2, clock_timestamp());
 
-    CALL dbms_lock.sleep(3);
+    CALL dbms_lock.sleep(2);
 
     INSERT INTO lock_test VALUES ('ended', 2, clock_timestamp());
 
@@ -32,5 +32,5 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
 

@@ -1,13 +1,11 @@
 -- Create an exlusive lock in the first session
 DO $$
 DECLARE
-    v_lockhandle varchar(200);
     v_result     integer;
     dbms_lock_x_mode integer := 6;
 BEGIN
-    CALL dbms_lock.allocate_unique('control_lock', v_lockhandle);
 
-    v_result := dbms_lock.request(v_lockhandle, dbms_lock_x_mode);
+    v_result := dbms_lock.request(123, dbms_lock_x_mode);
 
     IF v_result <> 0 THEN
         RAISE NOTICE '%', (
@@ -20,27 +18,21 @@ BEGIN
             end);
     END IF;
 
-    INSERT INTO lock_test VALUES ('started', 1, clock_timestamp());
-
-    COMMIT;
-
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
 
--- Wait 5 seconds to give time to others tests sessions to meet the lock.
-SELECT pg_sleep(5);
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
+
+SELECT pg_sleep(3);
 
 -- now release the lock
 DO $$
 DECLARE
-    v_lockhandle varchar(200);
     v_result     integer;
 BEGIN
-    CALL dbms_lock.allocate_unique('control_lock', v_lockhandle);
 
-    v_result := dbms_lock.release(v_lockhandle);
+    v_result := dbms_lock.release(123);
 
     IF v_result <> 0 THEN
         RAISE NOTICE '%', (
@@ -53,11 +45,8 @@ BEGIN
             end);
     END IF;
 
-    INSERT INTO lock_test VALUES ('ended', 1, clock_timestamp());
-
-    COMMIT;
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
 

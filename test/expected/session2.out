@@ -2,5 +2,6 @@ DO
    objid    |   mode    
 ------------+-----------
  1073741824 | ShareLock
-(1 row)
+ 1073741824 | ShareLock
+(2 rows)
 

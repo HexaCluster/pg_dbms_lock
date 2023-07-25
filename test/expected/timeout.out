@@ -1,0 +1,9 @@
+ objid |     mode      
+-------+---------------
+   123 | ExclusiveLock
+(1 row)
+
+ objid | mode 
+-------+------
+(0 rows)
+

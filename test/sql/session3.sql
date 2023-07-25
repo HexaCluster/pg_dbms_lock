@@ -32,5 +32,5 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
 

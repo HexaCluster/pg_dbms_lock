@@ -133,6 +133,7 @@ BEGIN
 	    -- Success
             RETURN 0;
         END IF;
+
         IF (clock_timestamp() > t_start + (timeout||' seconds')::interval) THEN
             -- The timeout exceeding
 	    RAISE WARNING 'Could not acquire advisory lock in % seconds', timeout;
@@ -227,7 +228,7 @@ DECLARE
 BEGIN
     -- Search if this is a shared advisory lock or not
     SELECT (CASE WHEN mode = 'ShareLock' THEN true ELSE false END) INTO is_shared
-	FROM pg_locks WHERE objid = id;
+	FROM pg_locks WHERE objid = id AND locktype = 'advisory';
     IF NOT FOUND THEN
         -- The lock is not owned
         RAISE WARNING 'parameter error';
@@ -272,7 +273,7 @@ BEGIN
 
     -- Search if this is a shared advisory lock or not
     SELECT (CASE WHEN mode = 'ShareLock' THEN true ELSE false END) INTO is_shared
-	FROM pg_locks WHERE objid = lockhandle::integer;
+	FROM pg_locks WHERE objid = lockhandle::integer AND locktype = 'advisory';
     IF NOT FOUND THEN
         -- The lock is not owned
         RAISE WARNING 'Do not own lock %; cannot release', lockhandle;

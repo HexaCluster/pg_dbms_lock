@@ -1,0 +1,8 @@
+psql:test/sql/timeout2.sql:23: WARNING:  Could not acquire advisory lock in 1 seconds
+psql:test/sql/timeout2.sql:23: NOTICE:  Timeout
+DO
+ objid |     mode      
+-------+---------------
+   123 | ExclusiveLock
+(1 row)
+

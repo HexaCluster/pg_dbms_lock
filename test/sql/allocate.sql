@@ -10,7 +10,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
 
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
@@ -41,7 +41,7 @@ BEGIN
 	RAISE EXCEPTION 'DBMS_LOCK.REQUEST() FAIL: %', lock_res;
     END IF;
 
-    FOR rec IN SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL
+    FOR rec IN SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory'
     LOOP
 	RAISE NOTICE 'objid => % | mode => %', rec.objid, rec.mode;
     END LOOP;
@@ -55,7 +55,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
 
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
