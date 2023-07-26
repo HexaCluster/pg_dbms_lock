@@ -54,7 +54,7 @@ BEGIN
 
         -- Get a new lock id based on lockid > start_id
         IF lockhandle_id IS NULL THEN
-            SELECT max(lockid)+1 INTO lockhandle_id FROM dbms_lock.dbms_lock_allocated WHERE lockid >= start_id;
+            SELECT max(lockid) + 1 INTO lockhandle_id FROM dbms_lock.dbms_lock_allocated;
             IF lockhandle_id IS NULL THEN
                 lockhandle_id = start_id;
             END IF;
