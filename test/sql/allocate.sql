@@ -10,7 +10,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
 
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
@@ -41,7 +41,7 @@ BEGIN
 	RAISE EXCEPTION 'DBMS_LOCK.REQUEST() FAIL: %', lock_res;
     END IF;
 
-    FOR rec IN SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory'
+    FOR rec IN SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid
     LOOP
 	RAISE NOTICE 'objid => % | mode => %', rec.objid, rec.mode;
     END LOOP;
@@ -55,7 +55,103 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
 
+SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
+
+TRUNCATE dbms_lock.dbms_lock_allocated;
+
+
+-- Create two named lock to validate the lock id search
+DO $$
+DECLARE
+    v_lockhandle varchar(200);
+    v_result     integer;
+    dbms_lock_x_mode integer := 6;
+BEGIN
+    CALL dbms_lock.allocate_unique('control_lock', v_lockhandle);
+
+    v_result := dbms_lock.request(v_lockhandle, dbms_lock_x_mode);
+
+    IF v_result <> 0 THEN
+        RAISE NOTICE '%', (
+           case 
+              when v_result=1 then 'Timeout'
+              when v_result=2 then 'Deadlock'
+              when v_result=3 then 'Parameter Error'
+              when v_result=4 then 'Already owned'
+              when v_result=5 then 'Illegal Lock Handle'
+            end);
+    END IF;
+
+END;
+$$;
+
+DO $$
+DECLARE
+    v_lockhandle varchar(200);
+    v_result     integer;
+    dbms_lock_x_mode integer := 6;
+BEGIN
+    CALL dbms_lock.allocate_unique('printer_lock', v_lockhandle);
+
+    v_result := dbms_lock.request(v_lockhandle, dbms_lock_x_mode);
+
+    IF v_result <> 0 THEN
+        RAISE NOTICE '%', (
+           case 
+              when v_result=1 then 'Timeout'
+              when v_result=2 then 'Deadlock'
+              when v_result=3 then 'Parameter Error'
+              when v_result=4 then 'Already owned'
+              when v_result=5 then 'Illegal Lock Handle'
+            end);
+    END IF;
+
+END;
+$$;
+
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
+
+DO $$
+DECLARE
+    v_lockhandle varchar(200);
+    v_result     integer;
+BEGIN
+    CALL dbms_lock.allocate_unique('control_lock', v_lockhandle);
+
+    v_result := dbms_lock.release(v_lockhandle);
+
+    IF v_result <> 0 THEN
+        RAISE NOTICE '%', (
+           case 
+              when v_result=1 then 'Timeout'
+              when v_result=2 then 'Deadlock'
+              when v_result=3 then 'Parameter Error'
+              when v_result=4 then 'Already owned'
+              when v_result=5 then 'Illegal Lock Handle'
+            end);
+    END IF;
+
+    CALL dbms_lock.allocate_unique('printer_lock', v_lockhandle);
+
+    v_result := dbms_lock.release(v_lockhandle);
+
+    IF v_result <> 0 THEN
+        RAISE NOTICE '%', (
+           case 
+              when v_result=1 then 'Timeout'
+              when v_result=2 then 'Deadlock'
+              when v_result=3 then 'Parameter Error'
+              when v_result=4 then 'Already owned'
+              when v_result=5 then 'Illegal Lock Handle'
+            end);
+    END IF;
+
+END;
+$$;
+
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 

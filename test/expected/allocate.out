@@ -25,3 +25,29 @@ DO
  printer_lock | 1073741824
 (1 row)
 
+TRUNCATE TABLE
+DO
+DO
+   objid    |     mode      
+------------+---------------
+ 1073741824 | ExclusiveLock
+ 1073741825 | ExclusiveLock
+(2 rows)
+
+     name     |   lockid   
+--------------+------------
+ control_lock | 1073741824
+ printer_lock | 1073741825
+(2 rows)
+
+DO
+ objid | mode 
+-------+------
+(0 rows)
+
+     name     |   lockid   
+--------------+------------
+ control_lock | 1073741824
+ printer_lock | 1073741825
+(2 rows)
+

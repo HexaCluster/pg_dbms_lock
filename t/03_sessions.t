@@ -20,7 +20,7 @@ sleep(7);
 $ret = `psql -d regress_dbms_lock -c "SELECT action, session, (date_trunc('second', executed) - lag(date_trunc('second', executed)) over(PARTITION BY session)) FROM lock_test" > results/session.out`;
 ok( $? == 0, "result for sessions 2 and 3 work");
 
-$ret = `psql -d regress_dbms_lock -c "SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory';" >> results/session.out`;
+$ret = `psql -d regress_dbms_lock -c "SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;" >> results/session.out`;
 ok( $? == 0, "pending advisory locks");
 
 $ret = `diff results/session.out test/expected/session.out 2>&1`;
