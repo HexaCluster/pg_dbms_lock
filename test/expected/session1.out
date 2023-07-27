@@ -10,6 +10,11 @@ DO
 (1 row)
 
 DO
+ pg_sleep 
+----------
+ 
+(1 row)
+
  objid | mode 
 -------+------
 (0 rows)
