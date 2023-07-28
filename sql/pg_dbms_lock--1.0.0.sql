@@ -115,6 +115,11 @@ BEGIN
 	return 3;
     END IF;
 
+    IF EXISTS (SELECT OBJID FROM PG_LOCKS WHERE LOCKTYPE = 'advisory' AND PID = PG_BACKEND_PID() AND OBJID = id) THEN
+        RAISE WARNING 'Already own lock specified by id or lockhandle';
+        RETURN 4;
+    END IF;
+    
     LOOP
 	IF release_on_commit THEN
 	    IF lockmode = 4 THEN
@@ -179,6 +184,11 @@ BEGIN
     IF timeout > 32767 THEN
 	RAISE NOTICE 'Parameter error';
 	return 3;
+    END IF;
+
+    IF EXISTS (SELECT OBJID FROM PG_LOCKS WHERE LOCKTYPE = 'advisory' AND PID = PG_BACKEND_PID() AND OBJID = lockhandle::integer) THEN
+        RAISE WARNING 'Already own lock specified by id or lockhandle';
+        RETURN 4;
     END IF;
 
     LOOP
