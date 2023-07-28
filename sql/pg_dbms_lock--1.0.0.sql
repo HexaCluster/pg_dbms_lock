@@ -225,7 +225,13 @@ CREATE OR REPLACE FUNCTION dbms_lock.release(
 DECLARE
     ret boolean := false;
     is_shared boolean;
+    start_id int := 1073741824;
 BEGIN
+    IF id >= start_id THEN
+	RAISE NOTICE 'Parameter error';
+	return 3;
+    END IF;
+
     -- Search if this is a shared advisory lock or not
     SELECT (CASE WHEN mode = 'ShareLock' THEN true ELSE false END) INTO is_shared
 	FROM pg_locks WHERE objid = id AND locktype = 'advisory';
