@@ -115,7 +115,7 @@ BEGIN
 	return 3;
     END IF;
 
-    IF EXISTS (SELECT OBJID FROM PG_LOCKS WHERE LOCKTYPE = 'advisory' AND PID = PG_BACKEND_PID() AND OBJID = id) THEN
+    IF EXISTS (SELECT objid FROM pg_locks WHERE locktype = 'advisory' AND pid = pg_backend_pid() AND objid = id) THEN
         RAISE WARNING 'Already own lock specified by id or lockhandle';
         RETURN 4;
     END IF;
@@ -186,7 +186,7 @@ BEGIN
 	return 3;
     END IF;
 
-    IF EXISTS (SELECT OBJID FROM PG_LOCKS WHERE LOCKTYPE = 'advisory' AND PID = PG_BACKEND_PID() AND OBJID = lockhandle::integer) THEN
+    IF EXISTS (SELECT objid FROM pg_locks WHERE locktype = 'advisory' AND pid = pg_backend_pid() AND objid = lockhandle::integer) THEN
         RAISE WARNING 'Already own lock specified by id or lockhandle';
         RETURN 4;
     END IF;
