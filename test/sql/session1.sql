@@ -27,7 +27,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 -- Wait 5 seconds to give time to others tests sessions to meet the lock.
 SELECT pg_sleep(5);
@@ -62,5 +62,5 @@ $$;
 -- wait 8 seconds to give time to two other sessions to finish and release locks
 SELECT pg_sleep(8);
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 

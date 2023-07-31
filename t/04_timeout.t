@@ -10,7 +10,7 @@ ok( $? == 0, "test for lock timeout 1");
 
 sleep(1);
 
-$ret = `psql -d regress_dbms_lock -c "SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;" > results/timeout.out`;
+$ret = `psql -d regress_dbms_lock -c "SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;" > results/timeout.out`;
 ok( $? == 0, "pending advisory locks");
 
 # Start the other session that should lock timeout
@@ -19,7 +19,7 @@ ok( $? == 0, "test for lock timeout 2");
 
 sleep(3);
 
-$ret = `psql -d regress_dbms_lock -c "SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;" >> results/timeout.out`;
+$ret = `psql -d regress_dbms_lock -c "SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;" >> results/timeout.out`;
 ok( $? == 0, "pending advisory locks");
 
 $ret = `diff results/timeout.out test/expected/timeout.out 2>&1`;
