@@ -186,7 +186,7 @@ BEGIN
 	return 3;
     END IF;
 
-    IF EXISTS (SELECT objid FROM pg_locks WHERE locktype = 'advisory' AND pid = pg_backend_pid() AND objid = lockhandle::integer AND database = (SELECT oid FROM pg_database WHERE datname = current_database())) THEN
+    IF EXISTS (SELECT objid FROM pg_locks WHERE locktype = 'advisory' AND pid = pg_backend_pid() AND objid = lockhandle::integer) THEN
         RAISE WARNING 'Already own lock specified by id or lockhandle';
         RETURN 4;
     END IF;
