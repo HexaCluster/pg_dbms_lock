@@ -13,7 +13,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 DO $$
 DECLARE
@@ -27,7 +27,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 ----
 -- Test shared lock request+release at session level
@@ -44,7 +44,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 DO $$
 DECLARE
@@ -58,7 +58,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 -----
 -- Test xact exclusive lock request at transaction level
@@ -77,11 +77,11 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 COMMIT;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 -----
 -- Test xact shared lock request at transaction level
@@ -100,8 +100,8 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 COMMIT;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;

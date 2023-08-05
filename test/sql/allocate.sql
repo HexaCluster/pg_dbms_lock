@@ -10,7 +10,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
@@ -41,7 +41,7 @@ BEGIN
 	RAISE EXCEPTION 'DBMS_LOCK.REQUEST() FAIL: %', lock_res;
     END IF;
 
-    FOR rec IN SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid
+    FOR rec IN SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid
     LOOP
 	RAISE NOTICE 'objid => % | mode => %', rec.objid, rec.mode;
     END LOOP;
@@ -55,7 +55,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
@@ -111,7 +111,7 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
 DO $$
@@ -152,6 +152,6 @@ BEGIN
 END;
 $$;
 
-SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' ORDER BY objid;
+SELECT objid, mode FROM pg_locks WHERE objid IS NOT NULL AND locktype = 'advisory' AND database = (SELECT oid FROM pg_database WHERE datname = current_database()) ORDER BY objid;
 SELECT name, lockid FROM dbms_lock.dbms_lock_allocated;
 
