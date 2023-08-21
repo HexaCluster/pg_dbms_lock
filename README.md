@@ -99,9 +99,9 @@ past the last call to `ALLOCATE_UNIQUE()` with the given lock name. After this t
 Syntax:
 ```
 dbms_lock.allocate_unique (
-   lockname         IN  varchar,
-   lockhandle       OUT varchar,
-   expiration_secs  IN  integer DEFAULT 864000);
+   lockname         IN    varchar,
+   lockhandle       INOUT varchar,
+   expiration_secs  IN    integer DEFAULT 864000);
 ```
 Parameters:
 

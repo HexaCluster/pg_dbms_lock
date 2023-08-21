@@ -31,7 +31,7 @@ REVOKE ALL ON PROCEDURE dbms_lock.sleep FROM PUBLIC;
 ----
 CREATE OR REPLACE PROCEDURE dbms_lock.allocate_unique (
 	lockname IN varchar,
-	lockhandle OUT varchar,
+	lockhandle INOUT varchar,
 	expiration_secs IN integer DEFAULT 864000)
     LANGUAGE PLPGSQL
     AS $$
