@@ -33,6 +33,7 @@ CREATE OR REPLACE PROCEDURE dbms_lock.allocate_unique (
 	lockname IN varchar,
 	lockhandle INOUT varchar,
 	expiration_secs IN integer DEFAULT 864000)
+    SECURITY DEFINER
     LANGUAGE PLPGSQL
     AS $$
 DECLARE
@@ -314,3 +315,7 @@ BEGIN
 END;
 $$;
 
+GRANT USAGE ON SCHEMA dbms_lock TO PUBLIC;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA dbms_lock TO PUBLIC;
+GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA dbms_lock TO PUBLIC;
+GRANT SELECT ON TABLE dbms_lock.dbms_lock_allocated TO PUBLIC;
