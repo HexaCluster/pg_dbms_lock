@@ -289,11 +289,11 @@ CALL DBMS_LOCK.SLEEP(0.70);
 ## [Authors](#authors)
 
 - Gilles Darold
+- Akhil Reddy Banappagari
 
 ## [License](#license)
 
-This extension is free software distributed under the PostgreSQL
-License.
+This extension is free software distributed under the PostgreSQL License.
 
     Copyright (c) 2023 HexaCluster Corp.
 
