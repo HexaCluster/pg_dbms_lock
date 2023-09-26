@@ -5,7 +5,7 @@ $ENV{LANG}='C';
 # Test that dbms_lock request acquire lock
 
 # Cleanup garbage from previous regression test runs
-`rm -f results/ 2>/dev/null`;
+`rm -rf results/ 2>/dev/null`;
 
 `mkdir results 2>/dev/null`;
 
