@@ -1,0 +1,43 @@
+{
+   "name": "pg_dbms_lock",
+   "abstract": "Extension to add Oracle DBMS_LOCK compatibility to PostgreSQL.",
+   "version": "1.0.0",
+   "maintainer": "Gilles Darold <gilles@hexacluster.ai>",
+   "license": "postgresql",
+   "release_status": "stable",
+   "provides": {
+      "pg_dbms_lock": {
+         "abstract": "Extension to add Oracle DBMS_LOCK compatibility to PostgreSQL",
+         "file": "sql/pg_dbms_lock--1.0.0.sql",
+         "docfile": "README.md",
+         "version": "1.0.0"
+      }
+   },
+   "resources": {
+      "bugtracker": {
+         "web": "https://github.com/hexacluster/pg_dbms_lock/issues"
+      },
+      "repository": {
+        "url":  "git://github.com/hexacluster/pg_dbms_lock.git",
+        "web":  "https://github.com/hexacluster/pg_dbms_lock.git",
+        "type": "git"
+      }
+   },
+   "prereqs": {
+       "runtime": {
+           "requires": {
+               "PostgreSQL": "9.1"
+           }
+       }
+   },
+   "generated_by": "Gilles Darold",
+   "meta-spec": {
+      "version": "1.0.0",
+      "url": "http://pgxn.org/meta/spec.txt"
+   },
+   "tags": [
+      "global",
+      "temporary",
+      "table"
+   ]
+}
