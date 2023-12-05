@@ -36,8 +36,8 @@
       "url": "http://pgxn.org/meta/spec.txt"
    },
    "tags": [
-      "global",
-      "temporary",
-      "table"
+      "oracle",
+      "compatibility",
+      "lock"
    ]
 }
